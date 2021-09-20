@@ -1,137 +1,202 @@
 <template>
-  <el-container>
-    <el-header height="160px">中国大学生竞赛项目证书生成平台</el-header>
-    <el-main>
-      <!-- 表格区域 -->
-      <el-table fit :data="tableData" stripe border style="width: 100%">
-        <el-table-column prop="event" label="比赛项目"> </el-table-column>
-        <el-table-column prop="undertaker" label="承办方"> </el-table-column>
-        <el-table-column prop="competitionLevel" label="比赛等级">
-        </el-table-column>
-        <el-table-column prop="administrator" label="管理员"> </el-table-column>
-        <el-table-column label="操作" width="400">
-          <template slot-scope="scope">
-            <el-button
-              icon="el-icon-search"
-              circle
-              size="mini"
-              @click="handleEdit(scope.$index, scope.row)"
-              >查询</el-button
+  <el-container class="home-container">
+    <!-- 头部区域 -->
+    <el-header class="el-header" height="80px">
+      <div>
+        <img class="logoImg" src="../assets/react.jpg" alt="" />
+        <span>证书生成平台</span>
+      </div>
+      <el-button type="info" @click="logout">退出</el-button>
+    </el-header>
+    <el-container>
+      <!-- 侧边栏 -->
+      <el-aside class="el-aside" :width="isCollapse ? '64px' : '200px'">
+        <div class="toggle-button" @click="toggleCollapse">|||</div>
+        <!-- 侧边栏菜单区域 -->
+        <el-menu
+          background-color="#333744"
+          text-color="#fff"
+          active-text-color="#409eff"
+          :unique-opened="true"
+          :collapse="isCollapse"
+          :collapse-transition="false"
+          router
+          :default-active="activePath"
+        >
+          <!-- 一级菜单 -->
+          <el-submenu
+            v-for="item in menulist"
+            :key="item.id"
+            :index="item.id + ''"
+          >
+            <!-- 一级菜单模板区 -->
+            <template slot="title">
+              <!-- 图标 -->
+              <i :class="iconsObj[item.id]"></i>
+              <!-- 文本 -->
+              <span>{{ item.authName }}</span>
+            </template>
+
+            <!-- 二级菜单 -->
+            <el-menu-item
+              :index="'/' + subItem.path"
+              v-for="subItem in item.children"
+              :key="subItem.id"
+              @click="saveNavState('/' + subItem.path)"
             >
-            <el-button
-              size="mini"
-              icon="el-icon-edit"
-              circle
-              type="primary"
-              @click="handleDelete(scope.$index, scope.row)"
-              >修改</el-button
-            >
-            <el-button
-              size="mini"
-              type="danger"
-              icon="el-icon-delete"
-              circle
-              @click="handleDelete(scope.$index, scope.row)"
-              >删除</el-button
-            >
-            <el-button
-              type="warning"
-              icon="el-icon-check"
-              circle
-              size="mini"
-              @click="handleDelete(scope.$index, scope.row)"
-              >生成</el-button
-            >
-            <el-button
-              size="mini"
-              type="success"
-              icon="el-icon-check"
-              circle
-              @click="handleDelete(scope.$index, scope.row)"
-              >下载</el-button
-            >
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-main>
+              <template slot="title">
+                <!-- 图标 -->
+                <i class="el-icon-menu"></i>
+                <!-- 文本 -->
+                <span>{{ subItem.authName }}</span>
+              </template>
+            </el-menu-item>
+          </el-submenu>
+        </el-menu>
+      </el-aside>
+      <!-- 内容主体区域 -->
+      <el-main>
+        <router-view></router-view>
+      </el-main>
+    </el-container>
   </el-container>
 </template>
 
 <script>
 export default {
+  name: "Home",
   data() {
     return {
-      tableData: [
+      //左侧菜单数据
+      menulist: [
         {
-          event: "ICPC",
-          undertaker: "东北大学秦皇岛分校",
-          competitionLevel: "国家级",
-          administrator: "张三",
+          authName: "比赛管理",
+          id: 101,
+          path: "competitions",
+          children: [
+            {
+              authName: "比赛列表",
+              id: 7,
+              path: "competitions",
+              children: [],
+            },
+          ],
         },
         {
-          event: "ICPC",
-          undertaker: "东北大学秦皇岛分校",
-          competitionLevel: "国家级",
-          administrator: "张三",
+          authName: "权限管理",
+          id: 103,
+          path: "rights",
+          children: [
+            {
+              authName: "角色列表",
+              id: 5,
+              path: "rights",
+              children: [],
+            },
+            {
+              authName: "权限列表",
+              id: 6,
+              path: "rights",
+              children: [],
+            },
+          ],
         },
         {
-          event: "ICPC",
-          undertaker: "东北大学秦皇岛分校",
-          competitionLevel: "国家级",
-          administrator: "张三",
-        },
-        {
-          event: "ICPC",
-          undertaker: "东北大学秦皇岛分校",
-          competitionLevel: "国家级",
-          administrator: "张三",
-        },
-        {
-          event: "ICPC",
-          undertaker: "东北大学秦皇岛分校",
-          competitionLevel: "国家级",
-          administrator: "张三",
-        },
-        {
-          event: "ICPC",
-          undertaker: "东北大学秦皇岛分校",
-          competitionLevel: "国家级",
-          administrator: "张三",
-        },
-        {
-          event: "ICPC",
-          undertaker: "东北大学秦皇岛分校",
-          competitionLevel: "国家级",
-          administrator: "张三",
-        },
-        {
-          event: "ICPC",
-          undertaker: "东北大学秦皇岛分校",
-          competitionLevel: "国家级",
-          administrator: "张三",
+          authName: "用户管理",
+          id: 125,
+          path: "users",
+          children: [
+            {
+              authName: "用户列表",
+              id: 4,
+              path: "users",
+              children: [],
+            },
+          ],
         },
       ],
+      iconsObj: {
+        125: "iconfont icon-user",
+        103: "iconfont icon-tijikongjian",
+        101: "iconfont icon-shangpin",
+        102: "iconfont icon-danju",
+        145: "iconfont icon-baobiao",
+      },
+      isCollapse: false,
+      activePath: "", //被激活的动态链接地址
     };
+  },
+  created() {
+    // this.getMenuList();
+    this.activePath = window.sessionStorage.getItem("activePath");
+  },
+  methods: {
+    logout() {
+      window.sessionStorage.clear();
+      this.$router.push("/");
+    },
+    //获取所有的菜单
+    async getMenuList() {
+      const { data: res } = await this.$http.get("menus");
+      if (res.meta.status !== 200) return this.$message.error(res.mes);
+      this.menulist = res.data;
+      // console.log(res);
+    },
+    //点击按钮，实现菜单的折叠与展开
+    toggleCollapse() {
+      this.isCollapse = !this.isCollapse;
+    },
+    saveNavState(activePath) {
+      //保存链接的激活状态
+      window.sessionStorage.setItem("activePath", activePath);
+      this.activePath = activePath;
+    },
   },
 };
 </script>
 
-<style scoped>
-.el-container {
-  width: 100%;
+<style lang="less" scoped>
+.home-container {
   height: 100%;
 }
 .el-header {
-  background-color: #b3c0d1;
-  color: #333;
-  text-align: center;
-  line-height: 160px;
-  font-size: 50px;
+  display: flex;
+  justify-content: space-between;
+  padding-left: 0;
+  align-items: center;
+  color: #fff;
+  font-size: 20px;
+  background-color: #373d41;
+  > div {
+    display: flex;
+    align-items: center;
+    span {
+      margin-left: 15px;
+    }
+  }
+  }
+.logoImg {
+  width: 80px;
+  height: 80px;
+}
+.el-aside {
+  background-color: #333744;
+  .el-menu {
+    border-right: none;
+  }
 }
 .el-main {
-  background-color: #e9eef3;
-  color: #333;
+  background-color: #eaedf1;
+}
+.iconfont {
+  margin-right: 10px;
+}
+.toggle-button {
+  background-color: #4a5064;
+  font-size: 10px;
+  line-height: 24px;
+  color: #fff;
   text-align: center;
-  /* line-height: 160px; */
+  cursor: pointer;
 }
 </style>

@@ -12,11 +12,11 @@
         label-width="auto"
         class="login_form"
       >
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="loginForm.username" ></el-input>
+        <el-form-item label="用户名" prop="userName">
+          <el-input v-model="loginForm.userName" ></el-input>
         </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input type="password" v-model="loginForm.password"></el-input>
+        <el-form-item label="密码" prop="passWord">
+          <el-input type="passWord" v-model="loginForm.passWord"></el-input>
         </el-form-item>
         <el-form-item class="btns">
           <el-button type="primary" @click="login">登录</el-button>
@@ -33,12 +33,12 @@
     <!-- 注册用户账号对话框 -->
 
     <el-dialog title="注册账号" :visible.sync="registerDialogVisiable">
-      <el-form ref="registerForm" :model="form">
-        <el-form-item label="用户名" prop="username" :label-width="formLabelWidth">
-          <el-input v-model="form.username" :autofocus="true" autocomplete="off"></el-input>
+      <el-form ref="registerForm" :model="registerForm">
+        <el-form-item label="用户名" prop="userName" :label-width="formLabelWidth">
+          <el-input v-model="registerForm.userName" :autofocus="true" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="密码" prop="password" :label-width="formLabelWidth">
-          <el-input v-model="form.password" autocomplete="off"></el-input>
+        <el-form-item label="密码" prop="passWord" :label-width="formLabelWidth">
+          <el-input v-model="registerForm.passWord" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -54,17 +54,17 @@ export default {
   data() {
     return {
       loginForm: {
-        username: "admin",
-        password: "123456",
+        userName: "admin",
+        passWord: "123456",
       },
       loginFormRules: {
         // 验证用户名
-        username: [
+        userName: [
           { required: true, message: "请输入用户名", trigger: "blur" },
           { min: 3, max: 10, message: "长度在 3 到 5 个字符", trigger: "blur" },
         ],
         //验证密码的规则
-        password: [
+        passWord: [
           { required: true, message: "请输入登录密码", trigger: "blur" },
           {
             min: 6,
@@ -75,16 +75,22 @@ export default {
         ],
       },
       registerDialogVisiable: false, // 注册对话框显示与隐藏
-      form: {
-        username: "",
-        password: "",
+      registerForm: {
+        userName: "",
+        passWord: "",
       },
       formLabelWidth: "120px",
     };
   },
   methods: {
-    login() {
+    async login() {
       console.log(`----------login------------`);
+      /* const res = await this.$http.post('http://192.168.43.17:8081/login',this.loginForm)
+      if(res.data.code === 200) {
+        console.log("登录成功")
+        this.$router.push('/home')
+      } */
+      this.$router.push('/home')
     },
     resetLoginForm() {
       console.log(`----------reset------------`);
@@ -98,9 +104,18 @@ export default {
       this.$refs.registerForm.resetFields();
       this.registerDialogVisiable = false;
     },
-    register() {
+    async register() {
       // 注册接口post到后端
       console.log(`----------register------------`);
+      console.log('this.registerForm',this.registerForm);
+      let aa = {
+        userName: this.registerForm.userName,
+        passWord: this.registerForm.passWord
+
+      }
+      const res = await this.$http.post('http://192.168.43.17:8081/register',aa)
+      console.log('res',res);
+      
     },
   },
 };
