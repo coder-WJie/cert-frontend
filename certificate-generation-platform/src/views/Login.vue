@@ -85,12 +85,12 @@ export default {
   methods: {
     async login() {
       console.log(`----------login------------`);
-      /* const res = await this.$http.post('http://192.168.43.17:8081/login',this.loginForm)
+      const res = await this.$http.post('/login',this.loginForm)
       if(res.data.code === 200) {
         console.log("登录成功")
         this.$router.push('/home')
-      } */
-      this.$router.push('/home')
+      }
+      // this.$router.push('/home')
     },
     resetLoginForm() {
       console.log(`----------reset------------`);
@@ -113,7 +113,7 @@ export default {
         passWord: this.registerForm.passWord
 
       }
-      const res = await this.$http.post('http://192.168.43.17:8081/register',aa)
+      const res = await this.$http.post('/register',aa)
       console.log('res',res);
       
     },

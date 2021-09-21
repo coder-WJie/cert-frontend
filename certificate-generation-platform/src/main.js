@@ -10,10 +10,16 @@ import './assets/css/global.css'
 import './assets/fonts/iconfont.css'
 import axios from 'axios'
 
+// 导入echarts
+import * as  echarts from "echarts"
+console.log('echarts',echarts);
+Vue.prototype.$echarts = echarts
+
+
 Vue.use(ElementUI);
 
 // 配置请求根路径
-// axios.defaults.baseURL = 'http://192.168.43.17:8081/';
+axios.defaults.baseURL = 'http://192.168.43.17:8081/';
 
 Vue.prototype.$http = axios
 

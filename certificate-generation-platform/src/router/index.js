@@ -30,7 +30,10 @@ const EventItem = () =>
      import(
        /* webpackChunkName: "eventManage" */ '../views/eventItem/EventManage.vue'
      );
-
+const DataVersion = () =>
+  import(
+    /* webpackChunkName: "dataVersion" */ '../views/eventItem/DataVersion.vue'
+  );
 
 const originalPush = VueRouter.prototype.push
 
@@ -90,6 +93,11 @@ const routes = [
             path: '/eventmanage',
             name: 'EventManage',
             component: EventManage,
+          },
+          {
+            path: '/dataversion',
+            name: 'DataVersion',
+            component: DataVersion,
           },
         ],
       },

@@ -21,6 +21,7 @@
         <el-menu-item index="/certcreate">证书生成</el-menu-item>
 
         <el-menu-item index="/certmanage">证书管理 </el-menu-item>
+        <el-menu-item index="/dataversion">获奖信息数据可视化 </el-menu-item>
         <el-menu-item index="/eventmanage">管理比赛信息</el-menu-item>
       </el-menu>
       <div>
@@ -56,6 +57,8 @@ export default {
         this.$router.replace('/certmanage').catch(err => console.log(err))
       } else if(key === '/eventmanage') {
         this.$router.replace('/eventmanage').catch(err => console.log(err))
+      }else if(key === '/dataversion') {
+        this.$router.replace('/dataversion').catch(err => console.log(err))
       }
     },
   },

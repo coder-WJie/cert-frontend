@@ -32,13 +32,13 @@
 
       <!-- 表格区域 -->
       <el-table fit :data="tableData" stripe border style="width: 100%">
-        <el-table-column prop="event" label="比赛项目"> </el-table-column>
+        <el-table-column prop="matchName" label="比赛项目"> </el-table-column>
         <el-table-column prop="organizer" label="主办单位"> </el-table-column>
-        <el-table-column prop="undertaker" label="承办方"> </el-table-column>
-        <el-table-column prop="date" label="举办时间"> </el-table-column>
-        <el-table-column prop="competitionLevel" label="比赛等级">
+        <el-table-column prop="matchId" label="比赛ID"> </el-table-column>
+        <el-table-column prop="matchTime" label="举办时间"> </el-table-column>
+        <el-table-column prop="certificateTime" label="证书时间">
         </el-table-column>
-        <el-table-column prop="administrator" label="管理员"> </el-table-column>
+        <el-table-column prop="matchIntroduction" label="比赛介绍"> </el-table-column>
         <el-table-column label="操作" width="200px">
           <template slot-scope="scope">
             <el-button
@@ -83,27 +83,27 @@
     <el-dialog title="添加比赛" :visible.sync="addEventDialogVisible">
       <el-form :model="newEventForm">
         <el-form-item label="比赛名称" :label-width="formLabelWidth">
-          <el-input v-model="newEventForm.name" autocomplete="off"></el-input>
+          <el-input v-model="newEventForm.matchName" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="主办单位" :label-width="formLabelWidth">
-          <el-input v-model="newEventForm.name" autocomplete="off"></el-input>
+          <el-input v-model="newEventForm.organizer" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="承办方" :label-width="formLabelWidth">
-          <el-input v-model="newEventForm.name" autocomplete="off"></el-input>
+        <el-form-item label="比赛ID" :label-width="formLabelWidth">
+          <el-input v-model="newEventForm.matchId" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="比赛等级" :label-width="formLabelWidth">
-          <el-input v-model="newEventForm.name" autocomplete="off"></el-input>
+        <el-form-item label="比赛介绍" :label-width="formLabelWidth">
+          <el-input v-model="newEventForm.matchIntroduction" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="比赛时间" :label-width="formLabelWidth">
-          <el-input v-model="newEventForm.name" autocomplete="off"></el-input>
+          <el-input v-model="newEventForm.matchTime" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="管理员" :label-width="formLabelWidth">
-          <el-input v-model="newEventForm.name" autocomplete="off"></el-input>
+        <el-form-item label="证书时间" :label-width="formLabelWidth">
+          <el-input v-model="newEventForm.certificateTime" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false"
+        <el-button type="primary" @click="addNewEvent"
           >确 定</el-button
         >
       </div>
@@ -183,8 +183,8 @@ export default {
   data() {
     return {
       newEvent: "", //新比赛
-
-      tableData: [
+      tableData: [],
+      /* tableData: [
         {
           event: "ICPC",
           organizer: "教育部",
@@ -249,7 +249,7 @@ export default {
           date: "10月8日",
           administrator: "张三",
         },
-      ],
+      ], */
       addEventDialogVisible: false,
       generateDialogVisible: false,
       form: {
@@ -258,12 +258,12 @@ export default {
       },
       // 添加新比赛表单
       newEventForm: {
-        event: "",
+        matchId: '',
+        matchName: "",
+        matchIntroduction: '',
         organizer: "",
-        undertaker: "",
-        competitionLevel: "",
-        date: "",
-        administrator: "",
+        matchTime: "",
+        certificateTime: "",
       },
       formLabelWidth: "120px",
       fileList: [],
@@ -273,10 +273,21 @@ export default {
       disabled: false,
     };
   },
+  created(){
+    this.getEventsList()
+
+  },
   methods: {
     // 请求比赛表格数据
-    getEventsList() {
+    async getEventsList() {
       console.log(`---------getEventsList-------------`);
+      const res = await this.$http.get('/MatchInfo/findAll')
+      console.log('res',res);
+      if(res.data.code === !200) {
+        return this.$message.error("获取比赛数据失败！")
+      }
+      // 表格渲染数据
+        this.tableData = res.data.data
     },
     manage(index, eventData) {
       this.$router.push({ name:"EventItem",params:{ eventData: eventData, index: index}})
@@ -287,6 +298,44 @@ export default {
       this.generateDialogVisible = true;
     },
     handleDownload() {},
+    // 添加新比赛
+    async addNewEvent() {
+      console.log('this.newE ventForm',this.newEventForm);
+      const res = await this.$http.post('/MatchInfo/addMatchInfo',this.newEventForm)
+      console.log('res',res);
+      if(res.data.code !== 200) {
+        return this.$message.error("添加失败！")
+      }
+      return this.$message.success("添加成功！")
+    },
+    // 删除比赛
+    handleDelete(index, matchData) {
+        this.$alert('您确定要删除该比赛吗', '删除比赛操作', {
+          confirmButtonText: '确定',
+          callback:async action => {
+            console.log('action',action);
+            if(action === 'confirm') {
+              // delete 请求
+              const res = await this.$http.get('/MatchInfo/deleteMatchInfo',{matchId: matchData.matchId})
+              console.log('delete  res',res);
+              if(res.data.code !== 200) {
+                return this.$message.error("删除失败！")
+              }
+              // 更新表格数据
+              this.getEventsList()
+
+              return this.$message({
+              type: 'success',
+              message: `action: ${ action }`
+            });
+            } 
+            return this.$message({
+              type: 'info',
+              message: `action: ${ action }`
+            });
+          }
+        });
+      },
     // 上传excel文件
     handleRemove(file, fileList) {
       console.log(file, fileList);
