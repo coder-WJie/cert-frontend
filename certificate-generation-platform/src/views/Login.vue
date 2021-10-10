@@ -3,7 +3,7 @@
     <div class="login_box">
       <!-- 表单信息 -->
       <div class="avater_box">
-        <img src="../assets/logo.png" alt="" />
+        <img src="../assets/cert.jpg" alt="" />
       </div>
       <el-form
         :model="loginForm"
@@ -36,6 +36,9 @@
       <el-form ref="registerForm" :model="registerForm">
         <el-form-item label="用户名" prop="userName" :label-width="formLabelWidth">
           <el-input v-model="registerForm.userName" :autofocus="true" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="专属ID" prop="exclusiveId" :label-width="formLabelWidth">
+          <el-input v-model="registerForm.exclusiveId" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="passWord" :label-width="formLabelWidth">
           <el-input v-model="registerForm.passWord" autocomplete="off"></el-input>
@@ -78,6 +81,7 @@ export default {
       registerForm: {
         userName: "",
         passWord: "",
+        exclusiveId: ''
       },
       formLabelWidth: "120px",
     };
@@ -88,6 +92,8 @@ export default {
       const res = await this.$http.post('/login',this.loginForm)
       if(res.data.code === 200) {
         console.log("登录成功")
+        console.log('res.data',res.data);
+        this.$store.dispatch('setManagerId', res.data.data)
         this.$router.push('/home')
       }
       // this.$router.push('/home')
@@ -110,11 +116,16 @@ export default {
       console.log('this.registerForm',this.registerForm);
       let aa = {
         userName: this.registerForm.userName,
-        passWord: this.registerForm.passWord
-
+        passWord: this.registerForm.passWord,
+        exclusiveId: this.registerForm.exclusiveId
       }
+      // console.log('aa',aa);
       const res = await this.$http.post('/register',aa)
       console.log('res',res);
+      if(res.data.code == 200) {
+        this.registerDialogVisiable = false;
+        return this.$message.success("注册成功！")
+      }
       
     },
   },

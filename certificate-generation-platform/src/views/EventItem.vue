@@ -41,8 +41,8 @@ export default {
   },
   mounted() {
     console.log("this.$route", this.$route);
-    
-    this.eventData = this.$route.params.eventData;
+    console.log('this.$store.state.currentMatchData',this.$store.state.currentMatchData);
+    this.eventData = this.$store.state.currentMatchData
 
     this.$router.push('/certcreate')
   },

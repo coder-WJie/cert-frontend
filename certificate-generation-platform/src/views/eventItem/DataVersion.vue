@@ -1,8 +1,6 @@
 <template>
   <div id="root">
-    <div class="chart" id="chartone"></div>
-    <div class="chart" id="charttwo"></div>
-    <div class="chart" id="chartthree"></div>
+    <div class="chart" id="chart"></div>
   </div>
 </template>
 
@@ -11,6 +9,7 @@ export default {
   data() {
     return {
       chartInstance: null,
+      currentMatchCerts: []
     };
   },
   computed: {
@@ -33,13 +32,7 @@ export default {
             name: "访问来源",
             type: "pie",
             radius: "50%",
-            data: [
-              { value: 1048, name: "搜索引擎" },
-              { value: 735, name: "直接访问" },
-              { value: 580, name: "邮件营销" },
-              { value: 484, name: "联盟广告" },
-              { value: 300, name: "视频广告" },
-            ],
+            data: this.pieOption,
             emphasis: {
               itemStyle: {
                 shadowBlur: 10,
@@ -51,21 +44,42 @@ export default {
         ],
       };
     },
+    pieOption() {
+      let schoolArr = []
+      this.currentMatchCerts.forEach(item => {
+        console.log('item',item);
+        let exit = schoolArr.find(school => {
+          console.log('school',school);
+          return school.schoolName === item.schoolName
+        })
+        console.log('exit',exit);
+        if(exit) {
+          exit.count++
+        } else {
+          schoolArr.push({
+            value:1,
+            name: item.schoolName
+          })
+        }
+      })
+      console.log('schoolArr',schoolArr);
+      return schoolArr
+    }
   },
   mounted() {
+    // 拿数据
+    this.currentMatchCerts = this.$store.state.currentMatchCerts
+    // 初始化图表
     this.initChart();
+    // 根据this.currentMatchCerts 计算出各个学校获奖队伍数，学校名称，组织成图表可用的数据结构
+    console.log('this.currentMatchCerts',this.currentMatchCerts);
+    console.log('this.pieOption',this.pieOption);
   },
   methods: {
     initChart() {
-      let chartone = document.querySelector("#chartone");
-      let charttwo = document.querySelector("#charttwo");
-      let chartthree = document.querySelector("#chartthree");
-      this.chartInstanceOne = this.$echarts.init(chartone);
-      this.chartInstanceTwo = this.$echarts.init(charttwo);
-      this.chartInstanceThree = this.$echarts.init(chartthree);
-      this.chartInstanceOne.setOption(this.option);
-      this.chartInstanceTwo.setOption(this.option);
-      this.chartInstanceThree.setOption(this.option);
+      let chart = document.querySelector("#chart");
+      this.chartInstance = this.$echarts.init(chart);
+      this.chartInstance.setOption(this.option);
     },
   },
 };
@@ -77,7 +91,7 @@ export default {
   justify-content: space-around;
 }
 .chart {
-  width: 440px;
+  width: 940px;
   height: 400px;
   display: inline-block;
   margin-top: 10px;

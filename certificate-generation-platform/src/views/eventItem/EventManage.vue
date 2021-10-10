@@ -1,8 +1,13 @@
 <template>
   <div>
-    <el-descriptions  labelClassName="descriptions" title="带边框列表" :column="1" border>
+    <el-descriptions
+      labelClassName="descriptions"
+      title="带边框列表"
+      :column="1"
+      border
+    >
       <template slot="extra">
-        <el-button type="primary" size="normal" @click="editEventData"
+        <el-button type="primary" size="normal" @click="openEditEventDialog"
           >编辑</el-button
         >
       </template>
@@ -11,39 +16,84 @@
           <i class="el-icon-user"></i>
           大赛名称
         </template>
-        ICPC
+        {{currentEventForm.matchName}}
       </el-descriptions-item>
       <el-descriptions-item>
         <template slot="label">
           <i class="el-icon-mobile-phone"></i>
           大赛介绍
         </template>
-        国际大学生程序设计竞赛（英文全称：International Collegiate Programming
-        Contest（简称ICPC））是由国际计算机协会（ACM）主办的，一项旨在展示大学生创新能力、团队精神和在压力下编写程序、分析和解决问题能力的年度竞赛。经过近40年的发展，ACM国际大学生程序设计竞赛已经发展成为全球最具影响力的大学生程序设计竞赛。赛事目前由AWS、华为和Jetbrains
-        [5] 赞助。
+        {{currentEventForm.matchIntroduction}}
       </el-descriptions-item>
       <el-descriptions-item>
         <template slot="label">
           <i class="el-icon-location-outline"></i>
           主办单位
         </template>
-        教育部
+        {{currentEventForm.organizer}}
       </el-descriptions-item>
       <el-descriptions-item>
         <template slot="label">
           <i class="el-icon-tickets"></i>
           赛事承办方
         </template>
-        <el-tag size="small">东北大学秦皇岛分校</el-tag>
+        <el-tag size="small">{{currentEventForm.organizer}}</el-tag>
       </el-descriptions-item>
       <el-descriptions-item>
         <template slot="label">
           <i class="el-icon-office-building"></i>
           比赛时间
         </template>
-        9月8号
+        {{currentEventForm.matchTime}}
+      </el-descriptions-item>
+      <el-descriptions-item>
+        <template slot="label">
+          <i class="el-icon-office-building"></i>
+          证书时间
+        </template>
+        {{currentEventForm.certificateTime}}
       </el-descriptions-item>
     </el-descriptions>
+
+    <!-- 编辑比赛信息对话框 -->
+    <el-dialog title="编辑比赛信息" :visible.sync="dialogFormVisible">
+      <el-form ref="eventForm" :model="currentEventForm">
+        <el-form-item label="比赛名称" :label-width="formLabelWidth">
+          <el-input
+            v-model="currentEventForm.matchName"
+            autocomplete="off"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="主办单位" :label-width="formLabelWidth">
+          <el-input
+            v-model="currentEventForm.organizer"
+            autocomplete="off"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="比赛介绍" :label-width="formLabelWidth">
+          <el-input
+            v-model="currentEventForm.matchIntroduction"
+            autocomplete="off"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="比赛时间" :label-width="formLabelWidth">
+          <el-input
+            v-model="currentEventForm.matchTime"
+            autocomplete="off"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="证书时间" :label-width="formLabelWidth">
+          <el-input
+            v-model="currentEventForm.certificateTime"
+            autocomplete="off"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancelEdit">取 消</el-button>
+        <el-button type="primary" @click="editEvent">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -51,27 +101,39 @@
 export default {
   data() {
     return {
-      // 编辑比赛表单
-      editEventForm: {
-        event: "",
-        organizer: "",
-        undertaker: "",
-        competitionLevel: "",
-        date: "",
-        administrator: "",
-      },
+      currentEventForm: {},
+      formLabelWidth: '120px',
+      dialogFormVisible: false
     };
   },
   created() {
     // 从vuex拿到该比赛的信息
+    this.currentEventForm = this.$store.state.currentMatchData;
     // dom中的描述信息和vuex里的数据双向绑定
   },
   methods: {
-    editEventData() {
-      console.log(`---------editEventData-------------`);
-      // post 提交数据修改数据库的比赛信息
-      // 请求成功后，修改vuex里存储的数据
+    openEditEventDialog() {
+      console.log(`---------openEditEventDialog-------------`);
+      this.dialogFormVisible = true
     },
+    //
+    async editEvent() {
+      console.log(`-----------editEvent-----------`);
+      // post 提交数据修改数据库的比赛信息
+      const res = await this.$http.post('/MatchInfo/updateMatchInfo',this.currentEventForm)
+      console.log('res',res);
+      if(res.data.code !== 200) {
+        return this.$message.error("修改比赛信息失败！")
+      }
+      // 请求成功后，修改vuex里存储的数据
+      this.$store.dispatch("setCurrentMatchData", this.currentEventForm)
+      this.dialogFormVisible = false
+      return this.$message.success("修改成功！")
+    },
+    cancelEdit() {
+      this.currentEventForm = this.$store.state.currentMatchData;
+      this.dialogFormVisible = false
+    }
   },
 };
 </script>
@@ -80,7 +142,7 @@ export default {
 .el-descriptions {
   margin-top: 10px;
 }
-.descriptions{
-    min-width:150px;
+.descriptions {
+  min-width: 150px;
 }
 </style>

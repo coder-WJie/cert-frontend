@@ -12,7 +12,7 @@
         <el-col :span="8">
           <el-input
             placeholder="请输入内容"
-            v-model="newEvent"
+            v-model="searchEvent"
             clearable
             @clear="getEventsList"
           >
@@ -55,41 +55,22 @@
               @click="handleDelete(scope.$index, scope.row)"
               >删除</el-button
             >
-           <!--  <el-button
-              type="warning"
-              icon="el-icon-check"
-              circle
-              size="mini"
-              @click="handleGenerate(scope.$index, scope.row)"
-              >生成</el-button
-            >
-            <el-badge :value="12" class="item">
-              <el-button
-                class="test"
-                size="mini"
-                type="success"
-                icon="el-icon-check"
-                circle
-                @click="handleDownload(scope.$index, scope.row)"
-                >下载</el-button
-              > -->
-            </el-badge>
           </template>
         </el-table-column>
       </el-table>
     </el-card>
 
     <!-- 添加比赛对话框 -->
-    <el-dialog title="添加比赛" :visible.sync="addEventDialogVisible">
+    <el-dialog ref="addMatchForm" title="添加比赛" :visible.sync="addEventDialogVisible">
       <el-form :model="newEventForm">
+        <el-form-item label="管理员ID" :label-width="formLabelWidth">
+          <el-input v-model="newEventForm.exclusiveId" autocomplete="off"></el-input>
+        </el-form-item>
         <el-form-item label="比赛名称" :label-width="formLabelWidth">
           <el-input v-model="newEventForm.matchName" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="主办单位" :label-width="formLabelWidth">
           <el-input v-model="newEventForm.organizer" autocomplete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="比赛ID" :label-width="formLabelWidth">
-          <el-input v-model="newEventForm.matchId" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="比赛介绍" :label-width="formLabelWidth">
           <el-input v-model="newEventForm.matchIntroduction" autocomplete="off"></el-input>
@@ -102,75 +83,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button @click="closeAddMatchForm">取 消</el-button>
         <el-button type="primary" @click="addNewEvent"
-          >确 定</el-button
-        >
-      </div>
-    </el-dialog>
-
-    <!-- 生成证书对话框 -->
-    <el-dialog title="证书生成" :visible.sync="generateDialogVisible">
-      <!-- 上传 excel获奖数据 -->
-      <el-upload
-        class="upload-demo"
-        accept=".xlsx"
-        action="#"
-        :file-list="fileList"
-        :on-success="uploadSuccess"
-        :on-error="uploadFail"
-        :limit="1"
-      >
-        <el-button size="small" type="primary">点击上传</el-button>
-        <div slot="tip" class="el-upload__tip">
-          只能上传jpg/png文件，且不超过500kb，上传excel文件
-        </div>
-      </el-upload>
-      <!-- 上传背景图 -->
-      <el-upload
-        ref="upload"
-        action="#"
-        list-type="picture-card"
-        :multiple="false"
-        :limit="1"
-        :on-exceed="doDisable"
-        :auto-upload="true"
-        :on-success="uploadSuccess"
-        :on-error="uploadFail"
-      >
-        <i slot="default" class="el-icon-plus"></i>
-        <div slot="file" slot-scope="{ file }">
-          <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
-          <span class="el-upload-list__item-actions">
-            <span
-              class="el-upload-list__item-preview"
-              @click="handlePictureCardPreview(file)"
-            >
-              <i class="el-icon-zoom-in"></i>
-            </span>
-            <span
-              v-if="!disabled"
-              class="el-upload-list__item-delete"
-              @click="handleDownload(file)"
-            >
-              <i class="el-icon-download"></i>
-            </span>
-            <span
-              v-if="!disabled"
-              class="el-upload-list__item-delete"
-              @click="handleRemove(file)"
-            >
-              <i class="el-icon-delete"></i>
-            </span>
-          </span>
-        </div>
-      </el-upload>
-      <el-dialog :visible.sync="dialogVisible">
-        <img width="100%" :src="dialogImageUrl" alt="" />
-      </el-dialog>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="generateDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="generateDialogVisible = false"
           >确 定</el-button
         >
       </div>
@@ -182,7 +96,7 @@
 export default {
   data() {
     return {
-      newEvent: "", //新比赛
+      searchEvent: "", // 查询参数
       tableData: [],
       /* tableData: [
         {
@@ -251,128 +165,121 @@ export default {
         },
       ], */
       addEventDialogVisible: false,
-      generateDialogVisible: false,
-      form: {
-        backgroundImg: "",
-        excelData: "",
-      },
       // 添加新比赛表单
       newEventForm: {
-        matchId: '',
         matchName: "",
-        matchIntroduction: '',
+        matchIntroduction: "",
         organizer: "",
         matchTime: "",
         certificateTime: "",
+        exclusiveId: "",
       },
       formLabelWidth: "120px",
-      fileList: [],
-      //  预览证书背景图
-      dialogImageUrl: "",
-      dialogVisible: false,
-      disabled: false,
     };
   },
-  created(){
-    this.getEventsList()
-
+  created() {
+    this.getEventsList();
   },
   methods: {
     // 请求比赛表格数据
     async getEventsList() {
       console.log(`---------getEventsList-------------`);
-      const res = await this.$http.get('/MatchInfo/findAll')
-      console.log('res',res);
-      if(res.data.code === !200) {
-        return this.$message.error("获取比赛数据失败！")
+      console.log("this.searchEvent", this.searchEvent);
+      const res = await this.$http.get(
+        `/MatchInfo/queryMatchInfo/?matchName=${this.searchEvent}`,
+        {
+          matchName: this.searchEvent,
+        }
+      );
+      console.log("获取比赛数据", res.data.data);
+      if (res.data.code === !200) {
+        return this.$message.error("获取比赛数据失败！");
       }
       // 表格渲染数据
-        this.tableData = res.data.data
+      this.tableData = res.data.data;
     },
-    manage(index, eventData) {
-      this.$router.push({ name:"EventItem",params:{ eventData: eventData, index: index}})
+    async manage(index, eventData) {
+      // 将当前比赛信息存入vuex
+      console.log(`----------current------------`, eventData);
+      // 获取vuex里的managerID 和 当前比赛id 进行鉴权
+      let managerId = this.$store.state.managerId;
+      // 请求比赛id
+      const res = await this.$http.get(
+        `/MatchInfo/getExclusiveId?matchName=${eventData.matchName}`
+      );
+      console.log("res", res);
+      console.log("res.data.code", res.data.code);
+      console.log("managerId", managerId);
+      console.log("res.data.data", res.data.data);
+      console.log("managerId === res.data.data", managerId === res.data.data);
+      if (res.data.code === 200 && managerId === res.data.data) {
+        console.log(`----------您可以管理该比赛------------`);
+        this.$store.dispatch("setCurrentMatchData", eventData);
+        this.$router.push({
+          name: "EventItem",
+          params: { eventData: eventData, index: index },
+        });
+      }
+      // 没权限
+      else return this.$message.error("您没有管理该比赛的权限！");
     },
-    handleEdit() {},
-    handleDelete() {},
-    handleGenerate() {
-      this.generateDialogVisible = true;
+    closeAddMatchForm() {
+      console.log(`----------清空注册表单域，关闭对话框------------`);
+      this.$refs.addMatchForm.resetFields();
+      this.addEventDialogVisible = false;
     },
-    handleDownload() {},
     // 添加新比赛
     async addNewEvent() {
-      console.log('this.newE ventForm',this.newEventForm);
-      const res = await this.$http.post('/MatchInfo/addMatchInfo',this.newEventForm)
-      console.log('res',res);
-      if(res.data.code !== 200) {
-        return this.$message.error("添加失败！")
+      console.log("this.newE ventForm", this.newEventForm);
+      const res = await this.$http.post(
+        "/MatchInfo/addMatchInfo",
+        this.newEventForm
+      );
+      console.log("res", res);
+      if (res.data.code !== 200) {
+        return this.$message.error("添加失败！");
       }
-      return this.$message.success("添加成功！")
+      // 更新表格数据
+      this.getEventsList();
+      this.addEventDialogVisible = false;
+      return this.$message.success("添加成功！");
     },
     // 删除比赛
     handleDelete(index, matchData) {
-        this.$alert('您确定要删除该比赛吗', '删除比赛操作', {
-          confirmButtonText: '确定',
-          callback:async action => {
-            console.log('action',action);
-            if(action === 'confirm') {
-              // delete 请求
-              const res = await this.$http.get('/MatchInfo/deleteMatchInfo',{matchId: matchData.matchId})
-              console.log('delete  res',res);
-              if(res.data.code !== 200) {
-                return this.$message.error("删除失败！")
+      this.$alert("您确定要删除该比赛吗", "删除比赛操作", {
+        confirmButtonText: "确定",
+        callback: async (action) => {
+          console.log("action", action);
+          if (action === "confirm") {
+            // delete 请求
+            console.log("matchData.matchId", matchData.matchId);
+            const res = await this.$http.delete(
+              `/MatchInfo/deleteMatchInfo/?matchId=${matchData.matchId}`,
+              {
+                matchId: matchData.matchId,
+                headers: {
+                  "Content-Type": "multipart/form-data",
+                },
               }
-              // 更新表格数据
-              this.getEventsList()
+            );
+            console.log("delete  res", res);
+            if (res.data.code !== 200) {
+              return this.$message.error("删除失败！");
+            }
+            // 更新表格数据
+            this.getEventsList();
 
-              return this.$message({
-              type: 'success',
-              message: `action: ${ action }`
-            });
-            } 
             return this.$message({
-              type: 'info',
-              message: `action: ${ action }`
+              type: "success",
+              message: `action: ${action}`,
             });
           }
-        });
-      },
-    // 上传excel文件
-    handleRemove(file, fileList) {
-      console.log(file, fileList);
-    },
-    handlePreview(file) {
-      console.log(file);
-    },
-    handleExceed(files, fileList) {
-      this.$message.warning(
-        `当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${
-          files.length + fileList.length
-        } 个文件`
-      );
-    },
-    beforeRemove(file, fileList) {
-      return this.$confirm(`确定移除 ${file.name}？`);
-    },
-    // excel文件上传成功
-    uploadSuccess() {
-      this.$message.success("excel文件上传成功！");
-    },
-    uploadFail() {
-      this.$message.error("excel文件上传失败！");
-    },
-    // 证书背景图上传处理
-    handleRemove(file) {
-      console.log(file);
-    },
-    handlePictureCardPreview(file) {
-      this.dialogImageUrl = file.url;
-      this.dialogVisible = true;
-    },
-    handleDownload(file) {
-      console.log(file);
-    },
-    doDisable() {
-      this.$refs.upload.disabled = true;
+          return this.$message({
+            type: "info",
+            message: `action: ${action}`,
+          });
+        },
+      });
     },
   },
 };

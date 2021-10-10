@@ -1,12 +1,12 @@
 <template>
   <el-container class="home-container">
     <!-- 头部区域 -->
-    <el-header class="el-header" height="80px">
+    <el-header class="el-header" height="100px">
       <div>
-        <img class="logoImg" src="../assets/react.jpg" alt="" />
-        <span>证书生成平台</span>
+        <img class="logoImg" src="../assets/header3.png" alt="" />
+        <!-- <span>证书生成平台</span> -->
       </div>
-      <el-button type="info" @click="logout">退出</el-button>
+      <el-button class="loginout" type="info" @click="logout">退出</el-button>
     </el-header>
     <el-container>
       <!-- 侧边栏 -->
@@ -14,9 +14,8 @@
         <div class="toggle-button" @click="toggleCollapse">|||</div>
         <!-- 侧边栏菜单区域 -->
         <el-menu
-          background-color="#333744"
-          text-color="#fff"
-          active-text-color="#409eff"
+          text-color="#146d74"
+          active-text-color="#333744"
           :unique-opened="true"
           :collapse="isCollapse"
           :collapse-transition="false"
@@ -160,6 +159,7 @@ export default {
   height: 100%;
 }
 .el-header {
+  position: relative;
   display: flex;
   justify-content: space-between;
   padding-left: 0;
@@ -167,6 +167,8 @@ export default {
   color: #fff;
   font-size: 20px;
   background-color: #373d41;
+  // background-image: url('../assets/header.png');
+  // background-repeat: repeat-x;
   > div {
     display: flex;
     align-items: center;
@@ -174,15 +176,25 @@ export default {
       margin-left: 15px;
     }
   }
-  }
+}
 .logoImg {
-  width: 80px;
-  height: 80px;
+  position: absolute;
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+}
+.loginout {
+  position: absolute;
+  right: 50px;
+  z-index: 10000;
 }
 .el-aside {
-  background-color: #333744;
+  background-image: url("../assets/aside.png");
+  background-size: 100% 100%;
   .el-menu {
     border-right: none;
+    text-align: left;
+    // background-color: #2fafd6;
   }
 }
 .el-main {
@@ -192,7 +204,7 @@ export default {
   margin-right: 10px;
 }
 .toggle-button {
-  background-color: #4a5064;
+  background-color: #146d74;
   font-size: 10px;
   line-height: 24px;
   color: #fff;

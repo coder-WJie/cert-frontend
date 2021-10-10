@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
+import store from './store'
 // 导入elementUI
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
@@ -19,7 +20,8 @@ Vue.prototype.$echarts = echarts
 Vue.use(ElementUI);
 
 // 配置请求根路径
-axios.defaults.baseURL = 'http://192.168.43.17:8081/';
+// axios.defaults.baseURL = 'http://192.168.43.17:8081/';
+axios.defaults.baseURL = 'http://8.141.52.47:8081/';
 
 Vue.prototype.$http = axios
 
@@ -28,5 +30,6 @@ Vue.config.productionTip = false
 
 new Vue({
   router,
+  store,
   render: h => h(App)
 }).$mount('#app')
