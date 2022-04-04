@@ -48,8 +48,10 @@
       <el-table-column prop="schoolName" label="参赛校名" min-width="140px">
       </el-table-column>
       <el-table-column label="操作" min-width="120px" fixed="">
-        <template>
-          <el-button size="mini" type="primary">下载证书</el-button>
+        <template slot-scope="scope">
+          <el-button size="mini" type="primary" @click="download(scope.row)"
+            >下载证书</el-button
+          >
         </template>
       </el-table-column>
     </el-table>
@@ -83,9 +85,9 @@ export default {
   computed: {
     matchId() {
       return this.$store.state.currentMatchData.matchId;
-    },
+    }
   },
-  created() {
+  mounted() {
     this.getCertsList();
     this.getCertsTotal();
   },
@@ -94,10 +96,10 @@ export default {
     async getCertsList() {
       console.log(`----------getCertsList------------`);
       const res = await this.$http.get(
-        `/AwardInfo/queryPage?page=${this.form.page}`
+        `/AwardInfo/queryPage?page=${this.form.page}&matchId=${this.matchId}`
       );
       if (res.data.code == 200) {
-        console.log("getCertsList", res);
+        // console.log("getCertsList", res);
         this.tableData = res.data.data;
         // 存进vuex里
         this.$store.dispatch("setCurrentMatchCert", res.data.data);
@@ -109,14 +111,14 @@ export default {
         `/AwardInfo/getRowCount?matchId=${this.$store.state.currentMatchData.matchId}`
       );
       if (res.data.code == 200) {
-        console.log("getCertsTotal", res);
+        // console.log("getCertsTotal", res);
         this.total = res.data.data;
       }
     },
     // 一键获取所有证书url
     async genAllCerts() {
-      console.log("this.tableData", this.tableData);
-
+      // console.log("this.tableData", this.tableData);
+      // console.log('this.matchId',this.matchId);
       const res = await this.$http.get(
         `/AwardInfo/findAllCertificateUrl/?matchId=${this.$store.state.currentMatchData.matchId}`
       );
@@ -126,7 +128,7 @@ export default {
         return this.$message.success("生成成功！");
       }
       return this.$message.error("生成失败！");
-    },
+    },    
     // 下载图片地址和图片名
     downloadImage(imgsrc, name) {
       console.log(`----------downloadImage------------`);
@@ -141,7 +143,7 @@ export default {
         canvas.height = image.height;
         const context = canvas.getContext("2d");
         context.drawImage(image, 0, 0, image.width, image.height);
-
+        // this.$message.success("准备下载中")
         canvas.toBlob((blob) => {
           console.log(`----------blob------------`);
           console.log("blob", blob);
@@ -157,7 +159,7 @@ export default {
       };
       image.src = imgsrc + "?v=" + Date.now(); // 加时间戳防止cdn缓存
 
-      console.log(`----------src imgsrc------------`, image.src);
+      // console.log(`----------src imgsrc------------`, image.src);
     },
     // 一键下载所有证书
     downloadAllCerts() {
@@ -173,7 +175,20 @@ export default {
         const certUrl = cert.certificateUrl;
         this.downloadImage(certUrl, certName);
       });
-      console.log(`----------downloadAllCerts------------`);
+      console.log('this.certsUrlList',this.certsUrlList);
+    },
+    //下载证书
+    download(certData) {
+      const certUrl = certData.certificateUrl;
+      const certName =
+        certData.schoolName +
+        "-" +
+        certData.teamName +
+        "-" +
+        certData.teamMember +
+        "-" +
+        certData.identifier;
+        this.downloadImage(certUrl, certName)
     },
     // 分页
     handleCurrentChange(val) {

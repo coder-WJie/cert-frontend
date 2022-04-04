@@ -16,7 +16,7 @@ export default {
     option() {
       return {
         title: {
-          text: "某站点用户访问来源",
+          text: "比赛高校获奖队伍数比例",
           subtext: "纯属虚构",
           left: "center",
         },

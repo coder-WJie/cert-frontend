@@ -33,6 +33,7 @@
       <!-- 表格区域 -->
       <el-table fit :data="tableData" stripe border style="width: 100%">
         <el-table-column prop="matchName" label="比赛项目"> </el-table-column>
+        <el-table-column prop="organizeSchool" label="承办学校"> </el-table-column>
         <el-table-column prop="organizer" label="主办单位"> </el-table-column>
         <el-table-column prop="matchId" label="比赛ID"> </el-table-column>
         <el-table-column prop="matchTime" label="举办时间"> </el-table-column>
@@ -68,6 +69,9 @@
         </el-form-item>
         <el-form-item label="比赛名称" :label-width="formLabelWidth">
           <el-input v-model="newEventForm.matchName" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="承办学校" :label-width="formLabelWidth">
+          <el-input v-model="newEventForm.organizeSchool" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="主办单位" :label-width="formLabelWidth">
           <el-input v-model="newEventForm.organizer" autocomplete="off"></el-input>
@@ -169,6 +173,7 @@ export default {
       newEventForm: {
         matchName: "",
         matchIntroduction: "",
+        organizeSchool: "",
         organizer: "",
         matchTime: "",
         certificateTime: "",
@@ -177,7 +182,7 @@ export default {
       formLabelWidth: "120px",
     };
   },
-  created() {
+  mounted() {
     this.getEventsList();
   },
   methods: {
@@ -235,7 +240,7 @@ export default {
         "/MatchInfo/addMatchInfo",
         this.newEventForm
       );
-      console.log("res", res);
+      console.log("res_add", res);
       if (res.data.code !== 200) {
         return this.$message.error("添加失败！");
       }

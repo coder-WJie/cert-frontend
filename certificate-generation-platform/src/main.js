@@ -12,7 +12,7 @@ import './assets/fonts/iconfont.css'
 import axios from 'axios'
 
 // 导入echarts
-import * as  echarts from "echarts"
+import * as  echarts from 'echarts'
 console.log('echarts',echarts);
 Vue.prototype.$echarts = echarts
 
@@ -21,7 +21,9 @@ Vue.use(ElementUI);
 
 // 配置请求根路径
 // axios.defaults.baseURL = 'http://192.168.43.17:8081/';
-axios.defaults.baseURL = 'http://8.141.52.47:8081/';
+// axios.defaults.baseURL = 'https://43.135.79.92:8081/';
+// axios.defaults.baseURL = 'https://certificate.jooks.cn:8081/';
+axios.defaults.baseURL = 'https://ccpc-cert.acmclub.cn:8081/';
 
 Vue.prototype.$http = axios
 

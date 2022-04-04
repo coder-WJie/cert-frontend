@@ -81,7 +81,7 @@ export default {
             },
           ],
         },
-        {
+       /*  {
           authName: "权限管理",
           id: 103,
           path: "rights",
@@ -99,7 +99,7 @@ export default {
               children: [],
             },
           ],
-        },
+        }, */
         {
           authName: "用户管理",
           id: 125,
@@ -121,13 +121,16 @@ export default {
         102: "iconfont icon-danju",
         145: "iconfont icon-baobiao",
       },
-      isCollapse: false,
+      isCollapse: true,
       activePath: "", //被激活的动态链接地址
     };
   },
   created() {
     // this.getMenuList();
     this.activePath = window.sessionStorage.getItem("activePath");
+  },
+  mounted() {
+    this.$router.push('/competitions')
   },
   methods: {
     logout() {
@@ -136,13 +139,15 @@ export default {
     },
     //获取所有的菜单
     async getMenuList() {
+      
       const { data: res } = await this.$http.get("menus");
       if (res.meta.status !== 200) return this.$message.error(res.mes);
       this.menulist = res.data;
-      // console.log(res);
     },
     //点击按钮，实现菜单的折叠与展开
     toggleCollapse() {
+      const _this = this
+      console.log('_this',_this);
       this.isCollapse = !this.isCollapse;
     },
     saveNavState(activePath) {

@@ -41,7 +41,7 @@
           <el-input v-model="registerForm.exclusiveId" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="passWord" :label-width="formLabelWidth">
-          <el-input v-model="registerForm.passWord" autocomplete="off"></el-input>
+          <el-input type="password" v-model="registerForm.passWord" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -57,8 +57,8 @@ export default {
   data() {
     return {
       loginForm: {
-        userName: "admin",
-        passWord: "123456",
+        userName: "",
+        passWord: "",
       },
       loginFormRules: {
         // 验证用户名
@@ -71,7 +71,7 @@ export default {
           { required: true, message: "请输入登录密码", trigger: "blur" },
           {
             min: 6,
-            max: 15,
+            max: 15, 
             message: "长度在 6 到 15 个字符",
             trigger: "blur",
           },
@@ -92,36 +92,31 @@ export default {
       const res = await this.$http.post('/login',this.loginForm)
       if(res.data.code === 200) {
         console.log("登录成功")
-        console.log('res.data',res.data);
+        // console.log('res.data',res.data);
         this.$store.dispatch('setManagerId', res.data.data)
         this.$router.push('/home')
       }
-      // this.$router.push('/home')
     },
     resetLoginForm() {
-      console.log(`----------reset------------`);
       this.$refs.loginForm.resetFields();
     },
     openRegisterDialog() {
       this.registerDialogVisiable = true;
     },
     closeRegisterForm() {
-      console.log(`----------清空注册表单域，关闭对话框------------`);
       this.$refs.registerForm.resetFields();
       this.registerDialogVisiable = false;
     },
     async register() {
       // 注册接口post到后端
-      console.log(`----------register------------`);
       console.log('this.registerForm',this.registerForm);
       let aa = {
         userName: this.registerForm.userName,
         passWord: this.registerForm.passWord,
         exclusiveId: this.registerForm.exclusiveId
       }
-      // console.log('aa',aa);
       const res = await this.$http.post('/register',aa)
-      console.log('res',res);
+      // console.log('res',res);
       if(res.data.code == 200) {
         this.registerDialogVisiable = false;
         return this.$message.success("注册成功！")

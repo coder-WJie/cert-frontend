@@ -37,7 +37,7 @@
           <i class="el-icon-tickets"></i>
           赛事承办方
         </template>
-        <el-tag size="small">{{currentEventForm.organizer}}</el-tag>
+        {{currentEventForm.organizeSchool}}
       </el-descriptions-item>
       <el-descriptions-item>
         <template slot="label">
@@ -106,19 +106,17 @@ export default {
       dialogFormVisible: false
     };
   },
-  created() {
+  mounted() {
     // 从vuex拿到该比赛的信息
     this.currentEventForm = this.$store.state.currentMatchData;
     // dom中的描述信息和vuex里的数据双向绑定
   },
   methods: {
     openEditEventDialog() {
-      console.log(`---------openEditEventDialog-------------`);
       this.dialogFormVisible = true
     },
     //
     async editEvent() {
-      console.log(`-----------editEvent-----------`);
       // post 提交数据修改数据库的比赛信息
       const res = await this.$http.post('/MatchInfo/updateMatchInfo',this.currentEventForm)
       console.log('res',res);
